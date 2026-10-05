@@ -17,7 +17,7 @@
             min-height: 100vh;
         }
         .container {
-            max-width: 850px;
+            max-width: 900px;
             margin: 20px auto;
             background: rgba(30, 41, 59, 0.85);
             backdrop-filter: blur(10px);
@@ -69,7 +69,7 @@
         }
         textarea {
             resize: vertical;
-            height: 100px;
+            height: 90px;
         }
         .checkbox-group {
             display: grid;
@@ -159,6 +159,46 @@
             background: linear-gradient(135deg, #0284c7, #0369a1);
             box-shadow: 0 6px 20px rgba(14, 165, 233, 0.6);
         }
+        /* สไตล์ตารางแสดงประวัติ */
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 8px;
+            overflow: hidden;
+            font-size: 0.9rem;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+        }
+        th {
+            background: rgba(14, 165, 233, 0.2);
+            color: #38bdf8;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+        tr:hover {
+            background: rgba(56, 189, 248, 0.05);
+        }
+        .clear-btn {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+            margin-top: 15px;
+        }
+        .clear-btn:hover {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+        }
+        .empty-row {
+            text-align: center;
+            color: #94a3b8;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -178,11 +218,11 @@
         <!-- เช็คเครื่องจักร -->
         <h2>2. เช็คสภาพเครื่องจักรก่อนเริ่มงาน (Daily Checklist)</h2>
         <div class="checkbox-group">
-            <label class="checkbox-item"><input type="checkbox" name="check" value="ระดับน้ำมันหล่อลื่น"> ระดับน้ำมันหล่อลื่น</label>
-            <label class="checkbox-item"><input type="checkbox" name="check" value="แรงดันลมอัด"> แรงดันลมอัด (Air Pressure)</label>
-            <label class="checkbox-item"><input type="checkbox" name="check" value="ความสะอาดโต๊ะงาน"> ความสะอาดหน้าโต๊ะงาน</label>
-            <label class="checkbox-item"><input type="checkbox" name="check" value="ระบบน้ำหล่อเย็น"> ระบบน้ำหล่อเย็น (Coolant)</label>
-            <label class="checkbox-item"><input type="checkbox" name="check" value="สภาพหัวจับทูล"> สภาพหัวจับทูล (Tooling)</label>
+            <label class="checkbox-item"><input type="checkbox" name="check" value="น้ำมันหล่อลื่น"> ระดับน้ำมันหล่อลื่น</label>
+            <label class="checkbox-item"><input type="checkbox" name="check" value="ลมอัด"> แรงดันลมอัด (Air Pressure)</label>
+            <label class="checkbox-item"><input type="checkbox" name="check" value="ความสะอาดโต๊ะ"> ความสะอาดหน้าโต๊ะงาน</label>
+            <label class="checkbox-item"><input type="checkbox" name="check" value="น้ำหล่อเย็น"> ระบบน้ำหล่อเย็น (Coolant)</label>
+            <label class="checkbox-item"><input type="checkbox" name="check" value="หัวจับทูล"> สภาพหัวจับทูล (Tooling)</label>
         </div>
 
         <!-- คำนวณรอบฟีด -->
@@ -215,32 +255,117 @@
 
         <button type="submit">บันทึกข้อมูลทั้งหมด</button>
     </form>
+
+    <!-- ส่วนตารางดูประวัติการบันทึก -->
+    <h2>📋 ตารางประวัติการบันทึกข้อมูล</h2>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>เวลา</th>
+                    <th>เครื่องจักร</th>
+                    <th>เช็คลิสต์ที่ตรวจสอบ</th>
+                    <th>รอบฟีด (Feed Rate)</th>
+                    <th>ปัญหาประจำวัน</th>
+                </tr>
+            </thead>
+            <tbody id="historyTableBody">
+                <tr class="empty-row">
+                    <td colspan="5">ยังไม่มีข้อมูลการบันทึก</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <button type="button" class="clear-btn" onclick="clearHistory()">ล้างประวัติทั้งหมด</button>
 </div>
 
 <script>
+    let currentFeedRate = 0;
+
     function calculateFeed() {
         const rpm = parseFloat(document.getElementById('rpm').value) || 0;
         const flutes = parseFloat(document.getElementById('flutes').value) || 0;
         const fz = parseFloat(document.getElementById('fz').value) || 0;
 
-        const feedRate = rpm * flutes * fz;
+        currentFeedRate = rpm * flutes * fz;
 
         document.getElementById('feedResult').innerText = 
-            `อัตราป้อน (Feed Rate - F): ${feedRate.toFixed(2)} mm/min`;
+            `อัตราป้อน (Feed Rate - F): ${currentFeedRate.toFixed(2)} mm/min`;
     }
+
+    // โหลดข้อมูลประวัติเก่าจาก LocalStorage (ถ้ามี) เมื่อเปิดเว็บ
+    window.onload = function() {
+        renderHistory();
+    };
 
     document.getElementById('cncForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // แจ้งเตือนเมื่อบันทึกสำเร็จ
-        alert('บันทึกข้อมูลเครื่องจักรเรียบร้อยแล้ว!');
+        // ดึงค่าเครื่องจักรที่เลือก
+        const machine = document.querySelector('input[name="machine"]:checked').value;
         
-        // รีเซ็ตฟอร์มทั้งหมดให้กลับเป็นค่าเริ่มต้น
+        // ดึงค่าเช็คลิสต์ที่ติ๊ก
+        const checks = Array.from(document.querySelectorAll('input[name="check"]:checked')).map(el => el.value);
+        const checkStr = checks.length > 0 ? checks.join(', ') : 'ไม่มีการเช็ค';
+        
+        // ดึงค่าปัญหา
+        const problem = document.getElementById('dailyProblem').value.trim() || 'ไม่มีปัญหา';
+        
+        // เวลาปัจจุบัน
+        const now = new Date();
+        const timeStr = now.toLocaleDateString('th-TH') + ' ' + now.toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
+
+        // สร้าง Object ข้อมูลใหม่
+        const newItem = {
+            time: timeStr,
+            machine: machine,
+            checks: checkStr,
+            feed: currentFeedRate.toFixed(2) + ' mm/min',
+            problem: problem
+        };
+
+        // ดึงข้อมูลเดิมมาต่อ
+        let history = JSON.parse(localStorage.getItem('cnc_history')) || [];
+        history.unshift(newItem); // เอาอันใหม่ไว้บนสุด
+        localStorage.setItem('cnc_history', JSON.stringify(history));
+
+        // อัปเดตตารางและรีเซ็ตฟอร์ม
+        renderHistory();
         this.reset();
-        
-        // เคลียร์ผลลัพธ์การคำนวณรอบฟีดให้เป็น 0
+        currentFeedRate = 0;
         document.getElementById('feedResult').innerText = 'อัตราป้อน (Feed Rate - F): 0.00 mm/min';
+        
+        alert('บันทึกข้อมูลและเพิ่มลงตารางเรียบร้อยแล้ว!');
     });
+
+    function renderHistory() {
+        const tbody = document.getElementById('historyTableBody');
+        const history = JSON.parse(localStorage.getItem('cnc_history')) || [];
+
+        if (history.length === 0) {
+            tbody.innerHTML = `<tr class="empty-row"><td colspan="5">ยังไม่มีข้อมูลการบันทึก</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = '';
+        history.forEach(item => {
+            const row = `<tr>
+                <td>${item.time}</td>
+                <td><strong>${item.machine}</strong></td>
+                <td>${item.checks}</td>
+                <td>${item.feed}</td>
+                <td>${item.problem}</td>
+            </tr>`;
+            tbody.innerHTML += row;
+        });
+    }
+
+    function clearHistory() {
+        if (confirm('คุณต้องการล้างประวัติการบันทึกทั้งหมดใช่หรือไม่?')) {
+            localStorage.removeItem('cnc_history');
+            renderHistory();
+        }
+    }
 </script>
 
 </body>
