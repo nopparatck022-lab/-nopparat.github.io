@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เกมยิงเป้าสุดมันส์</title>
+    <title>เกมยิงเป้ามือปืนสุดมันส์</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -17,11 +17,12 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
+            overflow: hidden;
             cursor: crosshair;
         }
         .nav-bar {
             width: 100%;
-            max-width: 600px;
+            max-width: 650px;
             margin-bottom: 5px;
         }
         .nav-btn {
@@ -38,8 +39,8 @@
             display: flex;
             justify-content: space-between;
             width: 100%;
-            max-width: 600px;
-            margin-bottom: 10px;
+            max-width: 650px;
+            margin-bottom: 8px;
             font-size: 1.1rem;
             font-weight: bold;
             color: #38bdf8;
@@ -47,29 +48,63 @@
         .game-container {
             position: relative;
             width: 100%;
-            max-width: 600px;
-            height: 450px;
+            max-width: 650px;
+            height: 480px;
             background: #1e293b;
             border: 3px solid #38bdf8;
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
+        /* เป้าใช้รูปภาพที่คุณส่งมา */
         .target {
             position: absolute;
-            width: 75px;
-            height: 75px;
+            width: 65px;
+            height: 65px;
             border-radius: 50%;
-            border: 4px solid #ef4444;
-            background-color: #f472b6;
+            border: 3px solid #ef4444;
+            background-image: url('cae7b9b0-bcba-4b4f-b205-0965eb68c3c4.jpg');
             background-size: cover;
             background-position: center;
             cursor: pointer;
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.8);
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.8);
             transition: transform 0.1s;
         }
-        .target:active { transform: scale(0.85); }
+        .target:active { transform: scale(0.8); }
 
+        /* ตัวละครมือปืนด้านล่างจอ */
+        .shooter {
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90px;
+            height: 90px;
+            background-image: url('cae7b9b0-bcba-4b4f-b205-0965eb68c3c4.jpg');
+            background-size: cover;
+            background-position: center;
+            border-radius: 50%;
+            border: 3px solid #38bdf8;
+            pointer-events: none;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
+            z-index: 5;
+        }
+        /* ปืนยาวจำลองที่มือปืนถือ */
+        .gun-barrel {
+            position: absolute;
+            bottom: 45px;
+            left: 50%;
+            width: 6px;
+            height: 50px;
+            background: #cbd5e1;
+            transform-origin: bottom center;
+            transform: translateX(-50%) rotate(0deg);
+            pointer-events: none;
+            z-index: 4;
+            border-radius: 3px;
+        }
+
+        /* หน้าต่างจบเกม / หัวเราะสะใจ */
         .game-over-screen {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -83,14 +118,20 @@
             z-index: 10;
         }
         .laugh-img {
-            width: 140px;
-            height: 140px;
+            width: 150px;
+            height: 150px;
             border-radius: 50%;
             border: 4px solid #38bdf8;
-            background-color: #f472b6;
-            object-fit: cover;
-            box-shadow: 0 0 25px #38bdf8;
+            background-image: url('cae7b9b0-bcba-4b4f-b205-0965eb68c3c4.jpg');
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 0 30px #38bdf8;
             margin-bottom: 15px;
+            animation: laughBounce 0.4s infinite alternate;
+        }
+        @keyframes laughBounce {
+            0% { transform: scale(1) rotate(-5deg); }
+            100% { transform: scale(1.08) rotate(5deg); }
         }
         .restart-btn {
             background: #0ea5e9;
@@ -118,20 +159,20 @@
     </div>
 
     <div class="game-container" id="gameContainer">
+        <!-- ตัวละครมือปืนและปืน -->
+        <div class="shooter" id="shooter"></div>
+        <div class="gun-barrel" id="gunBarrel"></div>
+
+        <!-- หน้าจอชนะ / หัวเราะสะใจ -->
         <div class="game-over-screen" id="gameOverScreen">
-            <img id="laughImgTag" class="laugh-img" alt="Laugh">
-            <h2 style="color: #38bdf8; margin: 5px 0;">ยอดเยี่ยม! ยิงครบแล้ว 🎯</h2>
+            <div class="laugh-img"></div>
+            <h2 style="color: #38bdf8; margin: 5px 0;">สุดยอด! ยิงครบ 50 เป้าแล้ว 😎</h2>
             <p id="finalTimeText" style="color: #cbd5e1; margin: 5px 0;"></p>
             <button class="restart-btn" onclick="startGame()">เล่นใหม่อีกครั้ง</button>
         </div>
     </div>
 
 <script>
-    // ใช้ภาพเรนเดอร์สำรองแบบสีสันชัดเจนในตัว เพื่อให้เป้าขึ้นชัวร์ๆ ทันที
-    const targetImage = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80';
-    
-    document.getElementById('laughImgTag').src = targetImage;
-
     let targetsLeft = 50;
     let startTime = null;
     let timerInterval = null;
@@ -142,6 +183,21 @@
     const timerDisplay = document.getElementById('timerDisplay');
     const gameOverScreen = document.getElementById('gameOverScreen');
     const finalTimeText = document.getElementById('finalTimeText');
+    const shooter = document.getElementById('shooter');
+    const gunBarrel = document.getElementById('gunBarrel');
+
+    // ให้ปืนหันเล็งตามเมาส์
+    container.addEventListener('mousemove', (e) => {
+        const rect = container.getBoundingClientRect();
+        const shooterX = rect.left + rect.width / 2;
+        const shooterY = rect.bottom - 45;
+        
+        let mouseX = e.clientX;
+        let mouseY = e.clientY;
+
+        let angle = Math.atan2(mouseY - shooterY, mouseX - shooterX) * (180 / Math.PI) + 90;
+        gunBarrel.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+    });
 
     function startGame() {
         container.querySelectorAll('.target').forEach(t => t.remove());
@@ -157,13 +213,12 @@
             timerDisplay.innerText = `⏱️ เวลา: ${elapsed}s`;
         }, 100);
 
-        const maxX = container.clientWidth - 80;
-        const maxY = container.clientHeight - 80;
+        const maxX = container.clientWidth - 70;
+        const maxY = container.clientHeight - 130; // เว้นพื้นที่ให้มือปืนด้านล่าง
 
         for (let i = 0; i < 50; i++) {
             let t = document.createElement('div');
             t.className = 'target';
-            t.style.backgroundImage = `url('${targetImage}')`;
             
             let rx = Math.floor(Math.random() * maxX);
             let ry = Math.floor(Math.random() * maxY);
