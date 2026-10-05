@@ -19,7 +19,6 @@
         }
         .font-tech { font-family: 'Share Tech Mono', monospace; }
         
-        /* Glass Panel Effect */
         .glass-panel {
             background: rgba(15, 20, 25, 0.6);
             backdrop-filter: blur(12px);
@@ -28,7 +27,6 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
         }
         
-        /* Neon Inputs */
         .neon-input {
             background: rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(0, 162, 255, 0.3);
@@ -41,7 +39,6 @@
             outline: none;
         }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
         ::-webkit-scrollbar-thumb { background: #00a2ff; border-radius: 10px; }
@@ -78,180 +75,4 @@
                 </h1>
                 <div class="flex items-center gap-3 mt-2">
                     <span class="px-2 py-0.5 bg-[#00ffa2]/10 border border-[#00ffa2]/30 text-[#00ffa2] text-xs uppercase tracking-wider rounded-sm font-tech">Quality Gauge and Tool</span>
-                    <span class="text-gray-400 text-sm font-tech">| ROUGH MILLING SYS_</span>
-                </div>
-            </div>
-            <div class="mt-4 md:mt-0 text-right">
-                <div class="text-xs text-gray-500 uppercase tracking-widest mb-1">Operator Profile</div>
-                <div class="flex items-center gap-2 justify-end">
-                    <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                    <span class="font-bold text-gray-200">นพรัตน์</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Navigation -->
-        <div class="flex bg-black/20 text-sm font-tech uppercase tracking-widest border-b border-[#00a2ff]/20">
-            <button id="tab-calc" onclick="switchTab('calc')" class="flex-1 py-4 text-center text-[#00ffa2] border-b-2 border-[#00ffa2] bg-[#00ffa2]/5 transition-all">
-                [01] คำนวณการกัดหยาบ (ลาฟ)
-            </button>
-            <button id="tab-defect" onclick="switchTab('defect')" class="flex-1 py-4 text-center text-gray-500 hover:text-gray-300 hover:bg-white/5 transition-all border-b-2 border-transparent">
-                [02] บันทึกข้อผิดพลาด
-            </button>
-        </div>
-
-        <!-- Tab 1: Calculator -->
-        <div id="content-calc" class="p-6 md:p-8">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                
-                <!-- Inputs -->
-                <div class="space-y-6">
-                    <div class="flex items-center gap-3 border-b border-gray-700 pb-2">
-                        <svg class="w-5 h-5 text-[#00a2ff]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                        <h2 class="text-sm font-bold text-gray-300 uppercase tracking-widest">Tool Parameters</h2>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="space-y-1">
-                            <label class="block text-[10px] text-gray-400 uppercase tracking-widest">Cutting Speed (Vc) m/min</label>
-                            <input type="number" id="vc" class="neon-input font-tech w-full rounded-md p-3 text-lg" value="120" oninput="calculate()">
-                        </div>
-                        <div class="space-y-1">
-                            <label class="block text-[10px] text-gray-400 uppercase tracking-widest">Tool Diameter (D) mm</label>
-                            <input type="number" id="dia" class="neon-input font-tech w-full rounded-md p-3 text-lg" value="10" oninput="calculate()">
-                        </div>
-                        <div class="space-y-1">
-                            <label class="block text-[10px] text-gray-400 uppercase tracking-widest">Feed / Tooth (Fz) mm/t</label>
-                            <input type="number" id="fz" class="neon-input font-tech w-full rounded-md p-3 text-lg" value="0.1" oninput="calculate()">
-                        </div>
-                        <div class="space-y-1">
-                            <label class="block text-[10px] text-gray-400 uppercase tracking-widest">Flutes (Z)</label>
-                            <input type="number" id="z" class="neon-input font-tech w-full rounded-md p-3 text-lg" value="4" oninput="calculate()">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Output Display -->
-                <div class="flex flex-col justify-center bg-[#050b14] border border-[#00a2ff]/30 rounded-xl p-8 relative overflow-hidden group">
-                    <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-                    
-                    <div class="text-center relative z-10 mb-8">
-                        <div class="text-xs text-[#00a2ff] uppercase tracking-widest mb-1">Spindle Speed [S]</div>
-                        <div class="font-tech text-5xl font-bold text-white drop-shadow-[0_0_15px_rgba(0,162,255,0.5)]">
-                            <span id="result-s">0</span> <span class="text-xl text-[#00a2ff]/60">RPM</span>
-                        </div>
-                    </div>
-
-                    <div class="w-full h-px bg-gradient-to-r from-transparent via-[#00a2ff]/50 to-transparent my-2"></div>
-
-                    <div class="text-center relative z-10 mt-6">
-                        <div class="text-xs text-[#00ffa2] uppercase tracking-widest mb-1">Feed Rate [F]</div>
-                        <div class="font-tech text-5xl font-bold text-white drop-shadow-[0_0_15px_rgba(0,255,170,0.5)]">
-                            <span id="result-f">0</span> <span class="text-xl text-[#00ffa2]/60">mm/min</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tab 2: Defect Tracking -->
-        <div id="content-defect" class="p-6 md:p-8 hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
-                <!-- Form -->
-                <div class="lg:col-span-2 space-y-5">
-                    <div class="flex items-center gap-3 border-b border-red-900/50 pb-2">
-                        <svg class="w-5 h-5 text-[#ff3366]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        <h2 class="text-sm font-bold text-gray-300 uppercase tracking-widest">Issue Report</h2>
-                    </div>
-                    
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-[10px] text-gray-400 uppercase tracking-widest mb-1">Select Machine</label>
-                            <select id="machine" class="neon-input font-tech w-full rounded-md p-3 cursor-pointer appearance-none">
-                                <option class="bg-gray-900" value="Makino V33">Makino V33</option>
-                                <option class="bg-gray-900" value="Makino V55">Makino V55</option>
-                                <option class="bg-gray-900" value="Yasda YBM950V">Yasda YBM950V</option>
-                                <option class="bg-gray-900" value="Yasda YMC650">Yasda YMC650</option>
-                                <option class="bg-gray-900" value="Other">อื่นๆ (Other)</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-[10px] text-gray-400 uppercase tracking-widest mb-1">Defect Details</label>
-                            <textarea id="issue" class="neon-input w-full rounded-md p-3 h-28 text-sm resize-none" placeholder="ระบุสาเหตุข้อผิดพลาด เช่น ลาฟชิ้นงานแล้วดอกสว่านหัก ทำให้รูโตเกินค่าที่กำหนด..."></textarea>
-                        </div>
-                        
-                        <button onclick="addDefect()" class="w-full bg-[#ff3366]/20 text-[#ff3366] border border-[#ff3366]/50 py-3 rounded-md font-bold hover:bg-[#ff3366] hover:text-white transition-all duration-300 shadow-[0_0_15px_rgba(255,51,102,0.2)] hover:shadow-[0_0_20px_rgba(255,51,102,0.6)] uppercase tracking-widest text-sm">
-                            Submit Log
-                        </button>
-                    </div>
-                </div>
-
-                <!-- History -->
-                <div class="lg:col-span-3 space-y-5">
-                    <div class="flex items-center justify-between border-b border-gray-700 pb-2">
-                        <h2 class="text-sm font-bold text-gray-300 uppercase tracking-widest">System Logs</h2>
-                        <span class="text-[10px] font-tech text-[#00a2ff] border border-[#00a2ff]/30 px-2 py-0.5 rounded-sm bg-[#00a2ff]/10">LIVE DATA</span>
-                    </div>
-                    
-                    <div id="defect-list" class="space-y-3 pr-2 max-h-[350px] overflow-y-auto">
-                        <div class="text-center text-gray-600 text-xs font-tech py-10 tracking-widest border border-dashed border-gray-700 rounded-lg" id="empty-state">
-                            NO LOGS FOUND IN DATABASE
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        function switchTab(tab) {
-            const btnCalc = document.getElementById('tab-calc');
-            const btnDefect = document.getElementById('tab-defect');
-            const contentCalc = document.getElementById('content-calc');
-            const contentDefect = document.getElementById('content-defect');
-
-            if(tab === 'calc') {
-                contentCalc.classList.remove('hidden');
-                contentDefect.classList.add('hidden');
-                
-                btnCalc.className = "flex-1 py-4 text-center text-[#00ffa2] border-b-2 border-[#00ffa2] bg-[#00ffa2]/5 transition-all";
-                btnDefect.className = "flex-1 py-4 text-center text-gray-500 hover:text-gray-300 hover:bg-white/5 transition-all border-b-2 border-transparent";
-            } else {
-                contentCalc.classList.add('hidden');
-                contentDefect.classList.remove('hidden');
-                
-                btnDefect.className = "flex-1 py-4 text-center text-[#ff3366] border-b-2 border-[#ff3366] bg-[#ff3366]/5 transition-all";
-                btnCalc.className = "flex-1 py-4 text-center text-gray-500 hover:text-gray-300 hover:bg-white/5 transition-all border-b-2 border-transparent";
-            }
-        }
-
-        function calculate() {
-            const vc = parseFloat(document.getElementById('vc').value) || 0;
-            const dia = parseFloat(document.getElementById('dia').value) || 0;
-            const fz = parseFloat(document.getElementById('fz').value) || 0;
-            const z = parseFloat(document.getElementById('z').value) || 0;
-
-            if (dia > 0) {
-                const s = Math.round((vc * 1000) / (Math.PI * dia));
-                const f = Math.round(s * fz * z);
-                
-                document.getElementById('result-s').innerText = s.toLocaleString();
-                document.getElementById('result-f').innerText = f.toLocaleString();
-            }
-        }
-
-        function addDefect() {
-            const machine = document.getElementById('machine').value;
-            const issue = document.getElementById('issue').value;
-            
-            if(!issue.trim()) {
-                alert('ERROR: กรุณาระบุรายละเอียดปัญหาก่อนบันทึก');
-                return;
-            }
-
-            const list = document.getElementById('defect-list');
-            const emptyState = document.getElementById('empty-state');
-            if(emptyState) emptyState.remove();
-
-            const time = new Date().toLocaleTimeString
+                    <span class="text-gray-400
