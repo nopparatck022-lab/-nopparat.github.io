@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CNC Technician Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 p-4 md:p-8 font-sans">
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+        
+        <!-- Header -->
+        <div class="bg-blue-800 text-white p-6">
+            <h1 class="text-2xl font-bold">CNC Technician Assistant</h1>
+            <p class="text-blue-200 text-sm mt-1">แอปพลิเคชันช่วยงานช่างเครื่อง CNC</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex border-b">
+            <button id="tab-calc" onclick="switchTab('calc')" class="flex-1 py-3 text-center font-semibold text-blue-700 border-b-2 border-blue-700 bg-blue-50">
+                คำนวณการกัดหยาบ (ลาฟ)
+            </button>
+            <button id="tab-defect" onclick="switchTab('defect')" class="flex-1 py-3 text-center font-semibold text-gray-500 hover:bg-gray-50">
+                บันทึกปัญหาหน้าเครื่อง
+            </button>
+        </div>
+
+        <!-- Tab 1: Calculator -->
+        <div id="content-calc" class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <h2 class="text-lg font-bold text-gray-700 border-b pb-2">ป้อนค่าตัวแปร (Input)</h2>
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">Cutting Speed (Vc) - m/min</label>
+                        <input type="number" id="vc" class="w-full border rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none" value="120" oninput="calculate()">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">Tool Diameter (D) - mm</label>
+                        <input type="number" id="dia" class="w-full border rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none" value="10" oninput="calculate()">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">Feed per Tooth (Fz) - mm/tooth</label>
+                        <input type="number" id="fz" class="w-full border rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none" value="0.1" oninput="calculate()">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">Number of Flutes (Z)</label>
+                        <input type="number" id="z" class="w-full border rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none" value="4" oninput="calculate()">
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 p-6 rounded-lg border border-blue-100 flex flex-col justify-center space-y-6">
+                    <h2 class="text-lg font-bold text-blue-800 text-center">ผลลัพธ์การคำนวณ (Output)</h2>
+                    
+                    <div class="bg-white p-4 rounded shadow-sm text-center">
+                        <div class="text-sm text-gray-500">ความเร็วรอบ (Spindle Speed - S)</div>
+                        <div class="text-3xl font-bold text-blue-700 mt-1"><span id="result-s">0</span> <span class="text-lg font-normal">RPM</span></div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded shadow-sm text-center">
+                        <div class="text-sm text-gray-500">อัตราป้อน (Feed Rate - F)</div>
+                        <div class="text-3xl font-bold text-blue-700 mt-1"><span id="result-f">0</span> <span class="text-lg font-normal">mm/min</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Defect Tracking -->
+        <div id="content-defect" class="p-6 hidden">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Form -->
+                <div class="md:col-span-1 space-y-4">
+                    <h2 class="text-lg font-bold text-gray-700 border-b pb-2">แจ้งปัญหา</h2>
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">เครื่องจักร</label>
+                        <select id="machine" class="w-full border rounded p-2 outline-none">
+                            <option value="Makino V33">Makino V33</option>
+                            <option value="Makino V55">Makino V55</option>
+                            <option value="Yasda">Yasda</option>
+                            <option value="Other">อื่นๆ</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">สาเหตุ / รายละเอียด</label>
+                        <textarea id="issue" class="w-full border rounded p-2 h-24 outline-none" placeholder="เช่น ดอกสว่านหัก รูโต..."></textarea>
+                    </div>
+                    <button onclick="addDefect()" class="w-full bg-orange-500 text-white py-2 rounded font-bold hover:bg-orange-600 transition">
+                        บันทึกข้อมูล
+                    </button>
+                </div>
+
+                <!-- List -->
+                <div class="md:col-span-2">
+                    <h2 class="text-lg font-bold text-gray-700 border-b pb-2 mb-4">ประวัติปัญหาล่าสุด</h2>
+                    <div id="defect-list" class="space-y-3 max-h-[300px] overflow-y-auto">
+                        <!-- รายการจะถูกเพิ่มตรงนี้ -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ระบบสลับหน้าจอ (Tab)
+        function switchTab(tab) {
+            const btnCalc = document.getElementById('tab-calc');
+            const btnDefect = document.getElementById('tab-defect');
+            const contentCalc = document.getElementById('content-calc');
+            const contentDefect = document.getElementById('content-defect');
+
+            if(tab === 'calc') {
+                contentCalc.classList.remove('hidden');
+                contentDefect.classList.add('hidden');
+                btnCalc.className = "flex-1 py-3 text-center font-semibold text-blue-700 border-b-2 border-blue-700 bg-blue-50";
+                btnDefect.className = "flex-1 py-3 text-center font-semibold text-gray-500 hover:bg-gray-50";
+            } else {
+                contentCalc.classList.add('hidden');
+                contentDefect.classList.remove('hidden');
+                btnDefect.className = "flex-1 py-3 text-center font-semibold text-orange-600 border-b-2 border-orange-500 bg-orange-50";
+                btnCalc.className = "flex-1 py-3 text-center font-semibold text-gray-500 hover:bg-gray-50";
+            }
+        }
+
+        // ระบบคำนวณ
+        function calculate() {
+            const vc = parseFloat(document.getElementById('vc').value) || 0;
+            const dia = parseFloat(document.getElementById('dia').value) || 0;
+            const fz = parseFloat(document.getElementById('fz').value) || 0;
+            const z = parseFloat(document.getElementById('z').value) || 0;
+
+            if (dia > 0) {
+                const s = Math.round((vc * 1000) / (Math.PI * dia));
+                const f = Math.round(s * fz * z);
+                
+                document.getElementById('result-s').innerText = s.toLocaleString();
+                document.getElementById('result-f').innerText = f.toLocaleString();
+            }
+        }
+
+        // ระบบบันทึกปัญหา
+        function addDefect() {
+            const machine = document.getElementById('machine').value;
+            const issue = document.getElementById('issue').value;
+            
+            if(!issue.trim()) {
+                alert('กรุณากรอกรายละเอียดปัญหาก่อนบันทึก');
+                return;
+            }
+
+            const list = document.getElementById('defect-list');
+            const time = new Date().toLocaleTimeString('th-TH');
+            
+            const itemHTML = `
+                <div class="bg-white border-l-4 border-orange-500 p-3 shadow-sm rounded-r flex justify-between items-center">
+                    <div>
+                        <div class="font-bold text-gray-700">${machine}</div>
+                        <div class="text-sm text-gray-600">${issue}</div>
+                    </div>
+                    <div class="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">
+                        เวลา ${time} น.
+                    </div>
+                </div>
+            `;
+            
+            // เพิ่มรายการใหม่ไว้ด้านบนสุด
+            list.insertAdjacentHTML('afterbegin', itemHTML);
+            
+            // ล้างช่องข้อความ
+            document.getElementById('issue').value = '';
+        }
+
+        // คำนวณครั้งแรกเมื่อโหลดเว็บเสร็จ
+        calculate();
+    </script>
+</body>
+</html>
