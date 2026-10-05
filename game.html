@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CNC Tool Escape - มินิเกมจำลองเครื่องจักร</title>
+    <title>Ultimate Target Shooting Game</title>
     <style>
+        * { box-sizing: border-box; }
         body {
             margin: 0;
-            padding: 0;
-            background: #0f172a;
+            padding: 10px;
+            background: radial-gradient(circle, #1e293b, #0f172a);
             color: #f8fafc;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
@@ -16,195 +17,243 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
+            overflow: hidden;
+            cursor: crosshair;
         }
-        h1 {
-            color: #38bdf8;
+        .nav-bar {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            justify-content: flex-start;
             margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 1.5rem;
         }
-        p {
-            color: #94a3b8;
-            margin-bottom: 15px;
-            font-size: 0.95rem;
-        }
-        canvas {
-            background: #1e293b;
-            border: 2px solid #38bdf8;
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(56, 189, 248, 0.3);
-        }
-        .back-link {
-            margin-top: 20px;
+        .nav-btn {
+            background: rgba(56, 189, 248, 0.2);
             color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            padding: 6px 14px;
+            border-radius: 6px;
             text-decoration: none;
             font-weight: bold;
-            background: rgba(56, 189, 248, 0.1);
-            padding: 10px 20px;
-            border-radius: 6px;
-            border: 1px solid rgba(56, 189, 248, 0.3);
+            font-size: 0.85rem;
             transition: 0.2s;
         }
-        .back-link:hover {
-            background: rgba(56, 189, 248, 0.2);
+        .nav-btn:hover { background: rgba(56, 189, 248, 0.4); color: #fff; }
+        
+        .header-panel {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #38bdf8;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
+        
+        .game-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            height: 420px;
+            background: url('https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=1200&q=80') no-repeat center center;
+            background-size: cover;
+            border: 3px solid #38bdf8;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(56, 189, 248, 0.4);
+            overflow: hidden;
+        }
+
+        /* เป้าหมายรูปภาพที่คุณส่งมา */
+        .target {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid #ef4444;
+            background-size: cover;
+            background-position: center;
+            cursor: pointer;
+            box-shadow: 0 0 10px #ef4444;
+            transition: transform 0.1s;
+            animation: floatTarget 2s infinite alternate ease-in-out;
+        }
+        .target:active { transform: scale(0.8); }
+
+        @keyframes floatTarget {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-8px); }
+        }
+
+        /* เอฟเฟกต์ระเบิดประกายไฟเวลาคลิกยิง */
+        .explosion {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #facc15, #ef4444, transparent);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            animation: explodeAnim 0.4s forwards;
+        }
+        @keyframes explodeAnim {
+            0% { transform: translate(-50%, -50%) scale(0.2); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+        }
+
+        /* หน้าต่างจบเกม / หัวเราะสะใจ */
+        .game-over-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            display: none;
+            z-index: 10;
+        }
+        .laugh-img {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            border: 4px solid #38bdf8;
+            object-fit: cover;
+            box-shadow: 0 0 25px #38bdf8;
+            margin-bottom: 15px;
+            animation: bounceLaugh 0.5s infinite alternate;
+        }
+        @keyframes bounceLaugh {
+            0% { transform: translateY(0) rotate(-5deg); }
+            100% { transform: translateY(-10px) rotate(5deg); }
+        }
+        .restart-btn {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
+            transition: 0.2s;
+        }
+        .restart-btn:hover { background: linear-gradient(135deg, #0284c7, #0369a1); }
     </style>
 </head>
 <body>
 
-    <h1>⚡ CNC Tool Escape Game</h1>
-    <p>ใช้ปุ่มลูกศร ⬆️ ⬇️ หรือเลื่อนเมาส์ เพื่อควบคุมทูลกัดชิ้นงานหลบสิ่งกีดขวาง!</p>
-    
-    <canvas id="gameCanvas" width="400" height="500"></canvas>
-    
-    <a href="index.html" class="back-link">⬅️ กลับไปหน้าหลักระบบ CNC</a>
+    <div class="nav-bar">
+        <a href="index.html" class="nav-btn">⬅ กลับหน้าหลักระบบ CNC</a>
+    </div>
+
+    <div class="header-panel">
+        <span id="scoreDisplay">🎯 เป้าที่เหลือ: 50 / 50</span>
+        <span id="timerDisplay">⏱️ เวลา: 0.0s</span>
+    </div>
+
+    <div class="game-container" id="gameContainer" onclick="fireShot(event)">
+        <!-- หน้าจอจบเกมพร้อมตัวละครหัวเราะสะใจ -->
+        <div class="game-over-screen" id="gameOverScreen">
+            <img src="cae7b9b0-bcba-4b4f-b205-0965eb68c3c4.jpg" class="laugh-img" alt="Laughing Character">
+            <h2 id="resultText" style="color: #38bdf8; margin: 5px 0;">ยอดเยี่ยม! ยิงครบ 50 เป้าแล้ว</h2>
+            <p id="finalTimeText" style="color: #cbd5e1; margin: 5px 0;"></p>
+            <button class="restart-btn" onclick="startGame()">เล่นใหม่อีกรอบ 🎮</button>
+        </div>
+    </div>
 
 <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
+    const targetImage = 'cae7b9b0-bcba-4b4f-b205-0965eb68c3c4.jpg';[cite: 15]
+    let targetsLeft = 50;
+    let startTime = null;
+    let timerInterval = null;
+    let gamePlaying = false;
 
-    // ตัวแปรผู้เล่น (หัวทูล CNC)
-    let tool = {
-        x: 50,
-        y: canvas.height / 2,
-        width: 30,
-        height: 20,
-        speed: 5,
-        dy: 0
-    };
+    const container = document.getElementById('gameContainer');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const gameOverScreen = document.getElementById('gameOverScreen');
+    const finalTimeText = document.getElementById('finalTimeText');
+    const resultText = document.getElementById('resultText');
 
-    // สิ่งกีดขวาง (เศษชิ้นงาน / ขอบฟิกเจอร์)
-    let obstacles = [];
-    let score = 0;
-    let gameOver = false;
-    let frameCount = 0;
-
-    // ควบคุมด้วยแป้นพิมพ์
-    window.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowUp' || e.key === 'w') tool.dy = -tool.speed;
-        if (e.key === 'ArrowDown' || e.key === 's') tool.dy = tool.speed;
-    });
-
-    window.addEventListener('keyup', (e) => {
-        if (['ArrowUp', 'ArrowDown', 'w', 's'].includes(e.key)) tool.dy = 0;
-    });
-
-    // ควบคุมด้วยมือถือ / เมาส์ลาก
-    canvas.addEventListener('mousemove', (e) => {
-        const rect = canvas.getBoundingClientRect();
-        tool.y = e.clientY - rect.top - tool.height / 2;
-    });
-
-    function spawnObstacle() {
-        const height = Math.random() * 150 + 50;
-        const gap = 140; // ช่องว่างให้ทูลลอด
-        const topObstacleHeight = Math.random() * (canvas.height - gap - 100) + 50;
+    function startGame() {
+        container.querySelectorAll('.target').forEach(t => t.remove());
+        gameOverScreen.style.display = 'none';
+        targetsLeft = 50;
+        gamePlaying = true;
+        scoreDisplay.innerText = `🎯 เป้าที่เหลือ: ${targetsLeft} / 50`;
         
-        obstacles.push({
-            x: canvas.width,
-            top: topObstacleHeight,
-            bottom: canvas.height - (topObstacleHeight + gap),
-            width: 40,
-            passed: false
-        });
-    }
+        startTime = Date.now();
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            let elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+            timerDisplay.innerText = `⏱️ เวลา: ${elapsed}s`;
+        }, 100);
 
-    function update() {
-        if (gameOver) return;
+        // สร้างเป้า 50 เป้ากระจายทั่วจอ
+        const maxX = container.clientWidth - 70;
+        const maxY = container.clientHeight - 70;
 
-        tool.y += tool.dy;
-        
-        // ขอบเขตหน้าจอ
-        if (tool.y < 0) tool.y = 0;
-        if (tool.y + tool.height > canvas.height) tool.y = canvas.height - tool.height;
+        for (let i = 0; i < 50; i++) {
+            let t = document.createElement('div');
+            t.className = 'target';
+            t.style.backgroundImage = `url('${targetImage}')`;
+            
+            let rx = Math.floor(Math.random() * maxX);
+            let ry = Math.floor(Math.random() * maxY);
+            t.style.left = rx + 'px';
+            t.style.top = ry + 'px';
 
-        frameCount++;
-        if (frameCount % 90 === 0) {
-            spawnObstacle();
-        }
+            // กดคลิกยิงโดนเป้าแต่ละอัน
+            t.addEventListener('click', (e) => {
+                e.stopPropagation(); // ป้องกันไม่ให้เบิ้ลคลิกซ้อนกับฉากหลัง
+                if (!gamePlaying) return;
 
-        // อัปเดตสิ่งกีดขวาง
-        for (let i = obstacles.length - 1; i >= 0; i--) {
-            obstacles[i].x -= 3;
+                // สร้างเอฟเฟกต์ระเบิดแสงอลังการตรงจุดที่คลิก
+                createExplosion(e.offsetX + t.offsetLeft, e.offsetY + t.offsetTop);
 
-            // ตรวจสอบการชน (Collision Detection)
-            if (
-                tool.x < obstacles[i].x + obstacles[i].width &&
-                tool.x + tool.width > obstacles[i].x &&
-                (tool.y < obstacles[i].top || tool.y + tool.height > canvas.height - obstacles[i].bottom)
-            ) {
-                gameOver = true;
-            }
+                t.remove();
+                targetsLeft--;
+                scoreDisplay.innerText = `🎯 เป้าที่เหลือ: ${targetsLeft} / 50`;
 
-            // นับคะแนนเมื่อผ่าน
-            if (!obstacles[i].passed && obstacles[i].x < tool.x) {
-                score++;
-                obstacles[i].passed = true;
-            }
+                if (targetsLeft <= 0) {
+                    endGame();
+                }
+            });
 
-            // ลบสิ่งกีดขวางที่หลุดจอ
-            if (obstacles[i].x + obstacles[i].width < 0) {
-                obstacles.splice(i, 1);
-            }
+            container.appendChild(t);
         }
     }
 
-    function draw() {
-        //เคลียร์หน้าจอ
-        ctx.fillStyle = '#1e293b';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // วาดทูล CNC (รูปทรงหัวกัด)
-        ctx.fillStyle = '#38bdf8';
-        ctx.fillRect(tool.x, tool.y, tool.width, tool.height);
-        ctx.fillStyle = '#f8fafc';
-        ctx.fillRect(tool.x + tool.width, tool.y + 5, 10, 10); // คมตัด
-
-        // วาดสิ่งกีดขวาง
-        ctx.fillStyle = '#ef4444';
-        obstacles.forEach(obs => {
-            ctx.fillRect(obs.x, 0, obs.width, obs.top);
-            ctx.fillRect(obs.x, canvas.height - obs.bottom, obs.width, obs.bottom);
-        });
-
-        // แสดงคะแนน
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '20px Segoe UI';
-        ctx.fillText(`คะแนน (Score): ${score}`, 20, 35);
-
-        if (gameOver) {
-            ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.fillStyle = '#ef4444';
-            ctx.font = 'bold 28px Segoe UI';
-            ctx.textAlign = 'center';
-            ctx.fillText('Game Over! (ชนชิ้นงาน)', canvas.width / 2, canvas.height / 2 - 20);
-
-            ctx.fillStyle = '#38bdf8';
-            ctx.font = '16px Segoe UI';
-            ctx.fillText('คลิกที่นี่เพื่อเล่นใหม่', canvas.width / 2, canvas.height / 2 + 25);
-            ctx.textAlign = 'left';
-        }
+    function createExplosion(x, y) {
+        let exp = document.createElement('div');
+        exp.className = 'explosion';
+        exp.style.left = x + 'px';
+        exp.style.top = y + 'px';
+        container.appendChild(exp);
+        setTimeout(() => exp.remove(), 400);
     }
 
-    function loop() {
-        update();
-        draw();
-        requestAnimationFrame(loop);
+    function fireShot(e) {
+        if (!gamePlaying) return;
+        // เอฟเฟกต์คลิกยิงพลาดแอดสั่นหรือแสงเล็กน้อย
+        createExplosion(e.offsetX, e.offsetY);
     }
 
-    canvas.addEventListener('click', () => {
-        if (gameOver) {
-            score = 0;
-            obstacles = [];
-            tool.y = canvas.height / 2;
-            gameOver = false;
-        }
-    });
+    function endGame() {
+        gamePlaying = false;
+        clearInterval(timerInterval);
+        let totalTime = ((Date.now() - startTime) / 1000).toFixed(1);
+        finalTimeText.innerText = `ใช้เวลาไปทั้งหมด: ${totalTime} วินาที!`;
+        gameOverScreen.style.display = 'flex';
+    }
 
-    loop();
+    // เริ่มเกมครั้งแรกอัตโนมัติ
+    startGame();
 </script>
 
 </body>
