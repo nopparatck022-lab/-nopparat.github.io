@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CNC Tool Escape - มินิเกมจำลองเครื่องจักร</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0f172a;
+            color: #f8fafc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        h1 {
+            color: #38bdf8;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 1.5rem;
+        }
+        p {
+            color: #94a3b8;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+        canvas {
+            background: #1e293b;
+            border: 2px solid #38bdf8;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(56, 189, 248, 0.3);
+        }
+        .back-link {
+            margin-top: 20px;
+            color: #38bdf8;
+            text-decoration: none;
+            font-weight: bold;
+            background: rgba(56, 189, 248, 0.1);
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            transition: 0.2s;
+        }
+        .back-link:hover {
+            background: rgba(56, 189, 248, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>⚡ CNC Tool Escape Game</h1>
+    <p>ใช้ปุ่มลูกศร ⬆️ ⬇️ หรือเลื่อนเมาส์ เพื่อควบคุมทูลกัดชิ้นงานหลบสิ่งกีดขวาง!</p>
+    
+    <canvas id="gameCanvas" width="400" height="500"></canvas>
+    
+    <a href="index.html" class="back-link">⬅️ กลับไปหน้าหลักระบบ CNC</a>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // ตัวแปรผู้เล่น (หัวทูล CNC)
+    let tool = {
+        x: 50,
+        y: canvas.height / 2,
+        width: 30,
+        height: 20,
+        speed: 5,
+        dy: 0
+    };
+
+    // สิ่งกีดขวาง (เศษชิ้นงาน / ขอบฟิกเจอร์)
+    let obstacles = [];
+    let score = 0;
+    let gameOver = false;
+    let frameCount = 0;
+
+    // ควบคุมด้วยแป้นพิมพ์
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowUp' || e.key === 'w') tool.dy = -tool.speed;
+        if (e.key === 'ArrowDown' || e.key === 's') tool.dy = tool.speed;
+    });
+
+    window.addEventListener('keyup', (e) => {
+        if (['ArrowUp', 'ArrowDown', 'w', 's'].includes(e.key)) tool.dy = 0;
+    });
+
+    // ควบคุมด้วยมือถือ / เมาส์ลาก
+    canvas.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        tool.y = e.clientY - rect.top - tool.height / 2;
+    });
+
+    function spawnObstacle() {
+        const height = Math.random() * 150 + 50;
+        const gap = 140; // ช่องว่างให้ทูลลอด
+        const topObstacleHeight = Math.random() * (canvas.height - gap - 100) + 50;
+        
+        obstacles.push({
+            x: canvas.width,
+            top: topObstacleHeight,
+            bottom: canvas.height - (topObstacleHeight + gap),
+            width: 40,
+            passed: false
+        });
+    }
+
+    function update() {
+        if (gameOver) return;
+
+        tool.y += tool.dy;
+        
+        // ขอบเขตหน้าจอ
+        if (tool.y < 0) tool.y = 0;
+        if (tool.y + tool.height > canvas.height) tool.y = canvas.height - tool.height;
+
+        frameCount++;
+        if (frameCount % 90 === 0) {
+            spawnObstacle();
+        }
+
+        // อัปเดตสิ่งกีดขวาง
+        for (let i = obstacles.length - 1; i >= 0; i--) {
+            obstacles[i].x -= 3;
+
+            // ตรวจสอบการชน (Collision Detection)
+            if (
+                tool.x < obstacles[i].x + obstacles[i].width &&
+                tool.x + tool.width > obstacles[i].x &&
+                (tool.y < obstacles[i].top || tool.y + tool.height > canvas.height - obstacles[i].bottom)
+            ) {
+                gameOver = true;
+            }
+
+            // นับคะแนนเมื่อผ่าน
+            if (!obstacles[i].passed && obstacles[i].x < tool.x) {
+                score++;
+                obstacles[i].passed = true;
+            }
+
+            // ลบสิ่งกีดขวางที่หลุดจอ
+            if (obstacles[i].x + obstacles[i].width < 0) {
+                obstacles.splice(i, 1);
+            }
+        }
+    }
+
+    function draw() {
+        //เคลียร์หน้าจอ
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // วาดทูล CNC (รูปทรงหัวกัด)
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(tool.x, tool.y, tool.width, tool.height);
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(tool.x + tool.width, tool.y + 5, 10, 10); // คมตัด
+
+        // วาดสิ่งกีดขวาง
+        ctx.fillStyle = '#ef4444';
+        obstacles.forEach(obs => {
+            ctx.fillRect(obs.x, 0, obs.width, obs.top);
+            ctx.fillRect(obs.x, canvas.height - obs.bottom, obs.width, obs.bottom);
+        });
+
+        // แสดงคะแนน
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '20px Segoe UI';
+        ctx.fillText(`คะแนน (Score): ${score}`, 20, 35);
+
+        if (gameOver) {
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#ef4444';
+            ctx.font = 'bold 28px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.fillText('Game Over! (ชนชิ้นงาน)', canvas.width / 2, canvas.height / 2 - 20);
+
+            ctx.fillStyle = '#38bdf8';
+            ctx.font = '16px Segoe UI';
+            ctx.fillText('คลิกที่นี่เพื่อเล่นใหม่', canvas.width / 2, canvas.height / 2 + 25);
+            ctx.textAlign = 'left';
+        }
+    }
+
+    function loop() {
+        update();
+        draw();
+        requestAnimationFrame(loop);
+    }
+
+    canvas.addEventListener('click', () => {
+        if (gameOver) {
+            score = 0;
+            obstacles = [];
+            tool.y = canvas.height / 2;
+            gameOver = false;
+        }
+    });
+
+    loop();
+</script>
+
+</body>
+</html>
