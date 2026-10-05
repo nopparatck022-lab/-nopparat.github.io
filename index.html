@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lab 3 - 5 Vibe Coding Report</title>
+    <title>Lab 3 - 5 Vibe Coding: ระบบเช็คเครื่องจักรประจำวัน</title>
     <style>
         :root {
-            --primary-color: #4f46e5;
-            --bg-color: #f3f4f6;
+            --primary-color: #0284c7;
+            --secondary-color: #0f172a;
+            --bg-color: #f8fafc;
             --card-bg: #ffffff;
-            --text-color: #1f2937;
+            --text-color: #334155;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -20,38 +21,59 @@
             line-height: 1.6;
         }
         .container {
-            max-width: 800px;
+            max-width: 850px;
             margin: 0 auto;
             background: var(--card-bg);
             padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
         }
         h1 {
-            color: var(--primary-color);
+            color: var(--secondary-color);
             text-align: center;
             margin-bottom: 30px;
+            border-bottom: 3px solid var(--primary-color);
+            padding-bottom: 15px;
         }
         .section {
             margin-bottom: 25px;
             padding: 20px;
-            background: #f9fafb;
-            border-left: 5px solid var(--primary-color);
-            border-radius: 4px;
+            background: #f1f5f9;
+            border-left: 6px solid var(--primary-color);
+            border-radius: 6px;
         }
         .section h2 {
             margin-top: 0;
             font-size: 1.25rem;
-            color: #374151;
+            color: var(--secondary-color);
+        }
+        ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 6px;
         }
         .prompt-box {
-            background: #1e293b;
-            color: #e2e8f0;
+            background: #0f172a;
+            color: #38bdf8;
             padding: 15px;
             border-radius: 6px;
             font-family: 'Courier New', Courier, monospace;
             white-space: pre-wrap;
             font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .machine-badge {
+            display: inline-block;
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            margin-right: 5px;
+            margin-bottom: 5px;
         }
         .app-link {
             display: inline-block;
@@ -64,36 +86,42 @@
             transition: background 0.2s;
         }
         .app-link:hover {
-            background: #4338ca;
+            background: #0369a1;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>รายงาน Vibe Coding Lab 3 - 5</h1>
+        <h1>Lab 3 - 5 Vibe Coding Report</h1>
 
         <!-- 1. หัวข้อที่สนใจ -->
         <div class="section">
             <h2>1. หัวข้อที่สนใจ</h2>
-            <p><strong>แอปพลิเคชันคำนวณแคลอรีและวางแผนสุขภาพประจำวัน (Calorie & Health Planner)</strong></p>
-            <p><em>เหตุผลที่สนใจ:</em> เพื่อช่วยให้ผู้ใช้งานสามารถบันทึกและคำนวณพลังงานที่ได้รับจากอาหารในแต่ละวัน รวมถึงแนะนำกิจกรรมการออกกำลังกายที่เหมาะสมเพื่อรักษาสุขภาพ</p>
+            <p><strong>ระบบบันทึกและตรวจสอบปัญหาเครื่องจักรประจำวัน (Daily Machine Check & Problem Log System)</strong></p>
+            <p><em>เครื่องจักรที่ควบคุมและตรวจสอบในระบบ:</em><br>
+                <span class="machine-badge">Makino V55</span>
+                <span class="machine-badge">Yasda YBM-950V</span>
+                <span class="machine-badge">YMC650</span>
+            </p>
+            <p><em>วัตถุประสงค์:</em> เพื่อใช้บันทึกเช็คลิสต์การเตรียมเครื่องจักรก่อนเริ่มงาน (Checklist) และรายงานปัญหาประจำวัน เช่น ปัญหาการกัดหยาบ (Rough Milling), รอบฟีด/ส피ด หรือความผิดปกติของเครื่องมือตัด เพื่อลดความผิดพลาดและเพิ่มประสิทธิภาพในการทำงานหน้าเครื่อง CNC</p>
         </div>
 
         <!-- 2. Prompt ที่ใช้ -->
         <div class="section">
             <h2>2. Prompt ที่ใช้</h2>
-            <div class="prompt-box">ช่วยสร้าง Web Application ด้วย HTML, CSS และ JavaScript สำหรับคำนวณแคลอรีและวางแผนสุขภาพ โดยมีฟังก์ชัน:
-1. คำนวณ BMR และ TDEE จากน้ำหนัก ส่วนสูง และอายุ
-2. ช่องบันทึกรายการอาหารและคำนวณแคลอรีรวมต่อวัน
-3. ดีไซน์หน้าเว็บให้สวยงามใช้งานง่ายแบบ Modern UI รองรับมือถือ</div>
+            <div class="prompt-box">ช่วยสร้าง Web Application ด้วย HTML, CSS และ JavaScript สำหรับเป็นระบบเช็คลิสต์และบันทึกปัญหาเครื่องจักร CNC ประจำวัน โดยมีฟังก์ชันดังนี้:
+1. เลือกเครื่องจักรได้ (Makino V55, Yasda YBM-950V, YMC650)
+2. ฟอร์มเช็คสถานะประจำวัน เช่น ระดับน้ำมันหล่อลื่น, ลมอัด, หัวจับทูล (Tooling) และรอบฟีด/ความเร็วรอบ
+3. ส่วนบันทึกปัญหาหน้างาน (Daily Issue Log) เช่น ปัญหาการกัดหยาบ (Rough Milling) หรือรันโค้ด G-code แล้วเกิดข้อผิดพลาด
+4. ดีไซน์หน้าจอสะอาดตา สไตล์แดชบอร์ดโรงงาน ใช้งานง่ายบนมือถือหรือแท็บเล็ต</div>
         </div>
 
         <!-- 3. ลิงค์ Web Application -->
         <div class="section">
             <h2>3. ลิงค์ Web Application</h2>
-            <p>คุณสามารถดูตัวอย่างโค้ดหรือทดลองใช้งานเว็บแอปพลิเคชันได้ที่ลิงค์ด้านล่างนี้:</p>
-            <a href="https://claude.ai" target="_blank" class="app-link">🔗 ไปยัง Web Application (Claude / Vibe Code)</a>
+            <p>ลิงค์สำหรับเข้าใช้งานหรือทดสอบระบบ Web Application ที่สร้างด้วยหลักการ Vibe Coding:</p>
+            <a href="https://claude.ai/new" target="_blank" class="app-link">🔗 ไปยัง Web Application (Claude AI)</a>
         </div>
     </div>
 
